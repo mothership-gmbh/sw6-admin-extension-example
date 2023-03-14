@@ -34,11 +34,12 @@ tasks:
       cp -r ./app/MothershipDemoApp/manifest.xml.example ./app/MothershipDemoApp/manifest.xml
       sed -i "s|SHOPWARE_APP_URL|$(gp url 8000)|g" ./app/MothershipDemoApp/manifest.xml
       cp dockware.env.example dockware.env
-      sed -i "s|APP_URL=|APP_URL=$(gp url 8000)|g" dockware.env
+      sed -i "s|APP_URL=|APP_URL=$(gp url 8005)|g" dockware.env
       docker cp $(pwd)/dockware.env shop:/var/www/html/.env
       docker cp $(pwd)/app/MothershipDemoApp/. shop:/var/www/html/custom/apps/MothershipDemoApp
-      docker exec shop bash -c 'APP_ENV=prod ./bin/console framework:demodata --orders 10 --products 10 --media 10 --customer 10 --promotion 5 --product_manufacturer 5'
-      eval $(echo "docker exec shop bash -c './bin/console sales-channel:update:domain $(gp url 8005 | awk -F[/:] '{print $4}')'")
+      docker exec shop bash -c './bin/console system:install --basic-setup --drop-database --create-database -f'
+      docker exec shop bash -c 'APP_ENV=prod ./bin/console framework:demodata --orders 10 --products 10 --media 10 --customers 10 --promotions 5 --manufacturers 5'
+      docker exec shop bash -c './bin/console app:install MothershipDemoApp --no-validate --activate --force'
       npm i
       npm run build
     command: |
