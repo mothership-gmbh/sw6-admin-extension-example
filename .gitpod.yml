@@ -7,7 +7,7 @@ ports:
     onOpen: open-browser
     description: Symfony Server
   - name: Shop
-    port: 8001
+    port: 8005
     onOpen: open-browser
     description: Shop
   - name: MySQL
@@ -22,7 +22,9 @@ tasks:
     init: |
       docker run --restart always -d --name=mysql -p 127.0.0.1:3306:3306 -e MYSQL_ROOT_PASSWORD=root mysql:8
       docker run --restart always -d --name=adminer --link mysql:mysql -p 5000:8080 -e ADMINER_DESIGN=pepa-linha -e ADMINER_DEFAULT_SERVER=mysql -e ADMINER_PLUGINS="tables-filter table-structure json-column version-noverify" ghcr.io/shyim/shopware-docker/adminer
-      docker run --restart always -d --name=shop -p 8001:80 dockware/dev:latest
+      docker run --restart always -d --name=shop -p 8005:80 dockware/dev:latest --env APP_URL="$(gp url 8005)|g"
+      docker exec shop bash -c 'echo "TRUSTED_PROXIES=127.0.0.1,127.0.0.2,172.0.0.0/8 >> .env'
+      docker exec shop bash -c 'APP_ENV=prod ./bin/console framework:demodata --orders 10 --products 0 --tags 0 --rules 0 --media 0 --customers 0 --properties 0 --categories 0 --manufacturers 0 --product-streams 0 --promotions 0 --reviews 0 --users 0 --flows 0 --mail-template 0 --mail-header-footer 0'
       rm .env
       composer install
       mysql -u root -e "create database mothership_demo_app"
@@ -30,7 +32,7 @@ tasks:
       sed -i "s|SHOPWARE_APP_URL=|SHOPWARE_APP_URL=$(gp url 8000)|g" .env
       cp -r ./app/MothershipDemoApp/manifest.xml.example ./app/MothershipDemoApp/manifest.xml
       sed -i "s|SHOPWARE_APP_URL|$(gp url 8000)|g" ./app/MothershipDemoApp/manifest.xml
-      bin/console doctrine:migrations:migrate
+      docker cp $(pwd)/app/MothershipDemoApp/. shop:/var/www/html/custom/apps/MothershipDemoApp
       npm i
       npm run build
     command: |
@@ -45,13 +47,16 @@ tasks:
           sleep 1
       done
       
+      # Run DB migration
+      bin/console doctrine:migrations:migrate --no-interaction
+      
       # Wait for port open
-      gp ports await 8001
+      gp ports await 8005
       
       # Start Webserver
       symfony server:start --port 8000
   - name: Getting Started
     command: |
-      echo 'Hey. Your environment is starting soon. You can see the progress in the terminal'
+      echo 'Your environment is starting soon. You can see the progress in the terminal'
       echo "App URL: $(gp url 8000)"
-      echo "Shopware URL: $(gp url 8001)"
+      echo "Shopware URL: $(gp url 8005)"
