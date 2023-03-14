@@ -5,10 +5,12 @@ ports:
   - name: App
     port: 8000
     onOpen: open-browser
+    visibility: public
     description: Symfony Server
   - name: Shop
     port: 8005
     onOpen: open-browser
+    visibility: public
     description: Shop
   - name: MySQL
     port: 3306
@@ -59,4 +61,5 @@ tasks:
     command: |
       echo 'Your environment is starting soon. You can see the progress in the terminal'
       echo "App URL: $(gp url 8000)"
+      echo "Adminer URL: $(gp url 5000)"
       echo "Shopware URL: $(gp url 8005)"

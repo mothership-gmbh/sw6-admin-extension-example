@@ -25,6 +25,4 @@ RUN sudo add-apt-repository ppa:ondrej/php -y && \
     echo "[client]" > ~/.my.cnf && \
     echo "host=127.0.0.1" >> ~/.my.cnf && \
     echo "user=root" >> ~/.my.cnf && \
-    echo "password=root" >> ~/.my.cnf \
-
-FROM dockware/dev:latest
+    echo "password=root" >> ~/.my.cnf
