@@ -2,25 +2,56 @@ image:
   file: .gitpod.Dockerfile
 
 ports:
-  - name: Shopware
+  - name: App
     port: 8000
     onOpen: open-browser
+    description: Symfony Server
+  - name: Shop
+    port: 8001
+    onOpen: open-browser
+    description: Shop
   - name: MySQL
     port: 3306
     onOpen: ignore
+  - name: Adminer
+    onOpen: ignore
+    port: 5000
 
 tasks:
-  - init: >
-      mysql -u root -e "create database mothership_demo_app" &&
-      cp .env.example .env &&
-      sed -i "s|SHOPWARE_APP_URL=|SHOPWARE_APP_URL=${GITPOD_WORKSPACE_URL}|g" .env &&
-      sed -i "s|SHOPWARE_APP_URL=https://|SHOPWARE_APP_URL=https://8000-|g" .env &&
-      sed -i "s|SHOPWARE_APP_URL=|SHOPWARE_APP_URL=${GITPOD_WORKSPACE_URL}|g" ./app/MothershipDemoApp/manifest.xml &&
-      sed -i "s|SHOPWARE_APP_URL=https://|SHOPWARE_APP_URL=https://8000-|g" ./app/MothershipDemoApp/manifest.xml &&
-      composer install &&
-      bin/console doctrine:migrations:migrate &&
-      npm i &&
+  - name: App
+    init: |
+      docker run --restart always -d --name=mysql -p 127.0.0.1:3306:3306 -e MYSQL_ROOT_PASSWORD=root mysql:8
+      docker run --restart always -d --name=adminer --link mysql:mysql -p 5000:8080 -e ADMINER_DESIGN=pepa-linha -e ADMINER_DEFAULT_SERVER=mysql -e ADMINER_PLUGINS="tables-filter table-structure json-column version-noverify" ghcr.io/shyim/shopware-docker/adminer
+      docker run --restart always -d --name=shop -p 8001:80 dockware/dev:latest
+      rm .env
+      composer install
+      mysql -u root -e "create database mothership_demo_app"
+      cp -r .env.example .env
+      sed -i "s|SHOPWARE_APP_URL=|SHOPWARE_APP_URL=$(gp url 8000)|g" .env
+      cp -r ./app/MothershipDemoApp/manifest.xml.example ./app/MothershipDemoApp/manifest.xml
+      sed -i "s|SHOPWARE_APP_URL|$(gp url 8000)|g" ./app/MothershipDemoApp/manifest.xml
+      bin/console doctrine:migrations:migrate
+      npm i
       npm run build
-    command: >
+    command: |
+      # Gitpod registers the ports on first docker command
+      docker ps
+      
+      # Wait for port open
+      gp ports await 3306
+      
+      # Wait until MySQL is reachable
+      until mysqladmin ping; do
+          sleep 1
+      done
+      
+      # Wait for port open
+      gp ports await 8001
+      
       # Start Webserver
       symfony server:start --port 8000
+  - name: Getting Started
+    command: |
+      echo 'Hey. Your environment is starting soon. You can see the progress in the terminal'
+      echo "App URL: $(gp url 8000)"
+      echo "Shopware URL: $(gp url 8001)"
