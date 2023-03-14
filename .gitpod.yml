@@ -1,0 +1,26 @@
+image:
+  file: .gitpod.Dockerfile
+
+ports:
+  - name: Shopware
+    port: 8000
+    onOpen: open-browser
+  - name: MySQL
+    port: 3306
+    onOpen: ignore
+
+tasks:
+  - init: >
+      mysql -u root -e "create database mothership_demo_app" &&
+      cp .env.example .env &&
+      sed -i "s|SHOPWARE_APP_URL=|SHOPWARE_APP_URL=${GITPOD_WORKSPACE_URL}|g" .env &&
+      sed -i "s|SHOPWARE_APP_URL=https://|SHOPWARE_APP_URL=https://8000-|g" .env &&
+      sed -i "s|SHOPWARE_APP_URL=|SHOPWARE_APP_URL=${GITPOD_WORKSPACE_URL}|g" ./app/MothershipDemoApp/manifest.xml &&
+      sed -i "s|SHOPWARE_APP_URL=https://|SHOPWARE_APP_URL=https://8000-|g" ./app/MothershipDemoApp/manifest.xml &&
+      composer install &&
+      bin/console doctrine:migrations:migrate &&
+      npm i &&
+      npm run build
+    command: >
+      # Start Webserver
+      symfony server:start --port 8000

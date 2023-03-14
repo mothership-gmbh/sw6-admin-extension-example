@@ -1,5 +1,8 @@
 twig:
     default_path: '%kernel.project_dir%/templates'
+    globals:
+        app_debug: '%app.debug%'
+        shopware_app_url: '%app.shopware_app_url%'
 
 when@test:
     twig:
