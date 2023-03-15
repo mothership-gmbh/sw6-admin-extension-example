@@ -34,7 +34,7 @@ class RegisterAppService
 
         return [
             'proof' => $this->createProof($shopId, $shopUrl),
-            'secret' => bin2hex(random_bytes(32)),
+            'secret' => $shopSecret,
             'confirmation_url' => $this->shopwareAppUrl . '/confirmation',
         ];
     }

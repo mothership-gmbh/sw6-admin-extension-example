@@ -38,8 +38,7 @@ tasks:
       docker cp $(pwd)/dockware.env shop:/var/www/html/.env
       docker cp $(pwd)/app/MothershipDemoApp/. shop:/var/www/html/custom/apps/MothershipDemoApp
       docker exec shop bash -c './bin/console system:install --basic-setup --drop-database --create-database -f'
-      docker exec shop bash -c 'APP_ENV=prod ./bin/console framework:demodata --orders 10 --products 10 --media 10 --customers 10 --promotions 5 --manufacturers 5'
-      docker exec shop bash -c './bin/console app:install MothershipDemoApp --no-validate --activate --force'
+      docker exec shop bash -c 'APP_ENV=prod ./bin/console framework:demodata --orders 10 --products 10 --media 10 --customers 10 --promotions 5 --manufacturers 5
       npm i
       npm run build
     command: |
@@ -58,7 +57,12 @@ tasks:
       bin/console doctrine:migrations:migrate --no-interaction
       
       # Start Webserver
-      symfony server:start --port 8000
+      symfony server:start --port 800
+
+      # Install & activate the demo app
+      docker exec shop bash -c './bin/console app:install MothershipDemoApp --no-validate --activate --force'
+      
+      echo 'Your environment is ready to run!'
   - name: Getting Started
     command: |
       echo 'Your environment is starting soon. You can see the progress in the terminal'
