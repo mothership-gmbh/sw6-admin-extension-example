@@ -58,5 +58,57 @@ php bin/console doctrine:migrations:migrate
 8. Copy the folder `MothershipDemoApp` to `[your-shopware-path]/custom/apps/`
 9. Go to the admin page Install and active the app and enjoy.
 
+### Important files/directories description
+
+    .
+    ├── app                         
+    │   ├── MothershipDemoApp           # App folder to upload to shopware
+    ├── assets                          # Asset modules
+    │   ├── components                  # App components
+    │   │   ├── App.vue                 # Root path of the App's iframe
+    │   │   ├── DemoApi.vue             # Demo to send data from the shop to the app server
+    │   │   ├── DemoForm.vue            # Demo to use the meteor-component-library
+    │   ├── init                        # Contains init plugins
+    │   │   ├── device.helper.js        # Provides methods to get device and browser information
+    │   │   └── helper.init.js          # Handling installation of plugin init
+    │   ├── ui                          # Shopware extention UIs
+    │   │   ├── order-detail-action.js  # To add an action button in order detail
+    │   ├── utils
+    │   │   ├── api                     # Related to the connect the systems by APIs
+    │   │   │   ├── api.service.js      # API service to use in the extends for all of APIs
+    │   │   │   └── order.service.js    # An example send order data
+    │   │   ├── axios.factory.js        # Axios interceptors
+    │   │   └── router.js               # Declare routers
+    │   └── app.js                      # App's main JavaScript file. Where it all begins
+    ├── config                          # Symfony's config folder
+    ├── migrations                      # Symfony's migration folder
+    ├── src
+    │   ├── Controller                  # Controller folder
+    │   │   ├── ApiController.php       # The API that receives the orders data is here
+    │   │   ├── AppController.php       # Declare app router for the iframe
+    │   │   └── AuthController.php      # App registration and confirmation
+    │   ├── Entity                      # Entity folder
+    │   │   └── Shop.php                # Shop enity
+    │   ├── Repository                  # Repository folder
+    │   │   └── ShopRepository.php      # Shop repository
+    │   └── Service
+    │       ├── RegisterAppService.php  # Handle app register, check signature and proof
+    │       └── ShopwareAuthenticator.php # Verify the requests sent from the Shop
+    │   
+    ├── templates                       # Twig templates
+    │   ├── base.html.twig              # Base template for the iframe
+    │   └── index.html.twig             # Index template for Vue
+    ├── .env.example                    # .env for the app
+    ├── gitpod.Dockerfile               # Gitpod dockerfile
+    ├── gitpod.yml                      # Gitpod script
+    ├── package.json                    # NPM packages
+    └── webpack.config.js               # Webpack to build the app
+
+## Commands
+```shell
+npm run build # To build the app
+npm run watch # To open watch mode
+```
+
 ## License
 Licensed under the MIT License

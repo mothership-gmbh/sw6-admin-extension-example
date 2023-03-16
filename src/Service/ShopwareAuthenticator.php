@@ -21,6 +21,17 @@ class ShopwareAuthenticator
     /**
      * To authenticate by the data on the header request
      *
+     * The headers added at `window.shopQueries` in `the base.html.twig`, the data will get form URL parameters
+     *
+     * eg:
+     * https://app.test/iframe?shop-id=SYX5HQremfcZmti9
+     * &shop-url=http://shop.test
+     * &timestamp=1678436204
+     * &sw-version=6.4.18.0
+     * &sw-context-language=2fbb5fe2e29a4d70aa5854ce7ce3e20b
+     * &sw-user-language=en-GB&
+     * shopware-shop-signature=743ed645d7c9cf9881a150f199f5cace02f263550d20140f01537f27335f5782
+     *
      * @param HeaderBag $headers The request headers when we called from the shopware app
      * @param string    $secret The secret key when the shop registers
      * @return bool
